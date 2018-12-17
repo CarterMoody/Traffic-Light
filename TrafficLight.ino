@@ -1,18 +1,17 @@
 #include <CPE123_Fall16.h>
+// Provided Library CPE 123 Fall 2016
 
 // Define your pins
+const int ledPin1 = 6;    // LED GreenPoly, Green Traffic Light at Poly Drive Intersection
+const int ledPin2 = 7;    // LED YellowPoly, Yellow Traffic Light at Poly Drive Intersection
+const int ledPin3 = 8;    // LED RedPoly, Red Traffic Light at Poly Drive Intersection
+const int ledPin4 = 9;    // LED GreenSmaller, Green Traffic Light at Smaller Road
+const int ledPin5 = 10;   // LED YellowSmaller, Yellow Traffic Light at Smaller Road
+const int ledPin6 = 11;   // LED RedSmaller, Red Traffic Light at Smaller Road
+const int buttonPin1 = 2; // BUTTON CarPoly, Creates a Car at Poly Drive Intersection
+const int buttonPin2 = 3; // BUTTON CarSmaller, Creates a Car at Smaller Road Intersection
 
-const int ledPin1 = 6;
-const int ledPin2 = 7;
-const int ledPin3 = 8;
-const int ledPin4 = 9;
-const int ledPin5 = 10;
-const int ledPin6 = 11;
-const int buttonPin1 = 2;
-const int buttonPin2 = 3;
-
-// Create your hardware
-
+// Hardware Creation
 Led GreenPoly(ledPin1);
 Led YellowPoly(ledPin2);
 Led RedPoly(ledPin3);
@@ -22,21 +21,17 @@ Led RedSmaller(ledPin6);
 Button CarPoly(buttonPin1);
 Button CarSmaller(buttonPin2);
 
-// This creates a software version of the LED on pin 13
-
+// Initial Setup Function
 void setup() {
-  // put your setup code here, to run once:
   // Set up serial monitor and print out program info
   Serial.begin(9600);
   setupMessage(__FILE__);
   printLibVersion();
 }
 
+// Main Process Loop
 void loop() {
-  // put your main code here, to run repeatedly:
-
    StateMachinePolyDrive();
-
 }
 
 void StateMachinePolyDrive()
@@ -49,7 +44,7 @@ void StateMachinePolyDrive()
 
   switch(state)
   {
-    case PolyGreen:
+    case PolyGreen: // The Light is Green at Poly Drive
     GreenPoly.on();
     YellowPoly.off();
     RedPoly.off();
@@ -61,6 +56,7 @@ void StateMachinePolyDrive()
       {
         Serial.println("Car at Smaller and Thirty Seconds Elapsed. Going to Yellow for Poly");
         Ten.set(10000); 
+        // Adjust Lights at intersection
         GreenPoly.off();
         YellowPoly.on();
         RedPoly.off();
@@ -71,11 +67,12 @@ void StateMachinePolyDrive()
       }
     break;
 
-    case PolyYellow:
+    case PolyYellow: // The Light is Yellow at Poly Drive
       if (Ten.done()==true)
       {
         Serial.println("Ten Seconds Elapsed, Turning Red on Poly");
         Five.set(5000);
+        // Adjust Lights at intersection
         GreenPoly.off();
         YellowPoly.off();
         RedPoly.on();
@@ -86,7 +83,7 @@ void StateMachinePolyDrive()
       }
     break;
 
-    case PolyRed:
+    case PolyRed: // The Light is Red at Poly Drive
       if (Five.done()==true)
       {
         Serial.println("Five Seconds Elapsed, Moving to SM2");
@@ -97,8 +94,9 @@ void StateMachinePolyDrive()
 
     case SM2Question:
     Serial.println("Waiting for True at SM2");
-      if (StateMachineSmallerRoad()==true);
+      if (StateMachineSmallerRoad()==true); // Light Cycle has Finished at Smaller Road
       {
+        // Transition back to Green Light on Poly Drive
         state=PolyGreen;
       }
     break;
@@ -118,8 +116,8 @@ int StateMachineSmallerRoad()
   
   switch(state)
   {
-    case BothRed:
-
+    case BothRed: // Both Lights are Red for each intersection
+    // Adjust Lights at Intersection
     GreenPoly.off();
     YellowPoly.off();
     RedPoly.on();
@@ -139,11 +137,12 @@ int StateMachineSmallerRoad()
       }
     break;
         
-    case SmallerGreen:
+    case SmallerGreen: // Light is Green at Smaller Intersection
       if (TenLimit.done()==true)
       {
         Serial.println("Ten Seconds Elapsed, Turning Yellow on Smaller");
         FiveLimit.set(5000);
+        // Adjust Lights at Intersection
         GreenPoly.off();
         YellowPoly.off();
         RedPoly.on();
@@ -154,10 +153,11 @@ int StateMachineSmallerRoad()
       }
     break;
 
-    case SmallerYellow:
+    case SmallerYellow: // Light is Yellow at Smaller Intersection
       if (FiveLimit.done()==true)
       {
         Serial.println("Five Seconds Elapsed, Turning Red on Smaller");
+        // Adjust Lights at Intersection
         GreenPoly.on();
         YellowPoly.off();
         RedPoly.off();
@@ -170,7 +170,7 @@ int StateMachineSmallerRoad()
     break;
 
     case SM2InternalQuestion:
-      if (FiveLimit.done()==true);
+      if (FiveLimit.done()==true); // We have waited five seconds with Red Light on Smaller Intersection
       {
         Serial.println("Five Seconds of Red Finished, Moving to SM1");
         returnValue=true;
@@ -181,7 +181,7 @@ int StateMachineSmallerRoad()
      default:
          break;
   }
-
+  // Return Value set at SM2 Internal Question, has the light been red for five seconds?
   return returnValue;
 }
 
